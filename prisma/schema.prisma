@@ -1,0 +1,194 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  VENDOR
+  CUSTOMER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BANNED
+}
+
+enum CertificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum HealthStatus {
+  EXCELLENT
+  GOOD
+  FAIR
+  POOR
+}
+
+enum GrowthStage {
+  SEED
+  SPROUT
+  VEGETATIVE
+  FLOWERING
+  HARVESTING
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole @default(CUSTOMER)
+  status    UserStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  vendorProfile  VendorProfile?
+  orders         Order[]
+  communityPosts CommunityPost[]
+}
+
+model VendorProfile {
+  id                  String   @id @default(uuid())
+  farmName            String
+  certificationStatus CertificationStatus @default(PENDING)
+  farmLocation        String
+
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  produces           Produce[]
+  rentalSpaces       RentalSpace[]
+  sustainabilityCerts SustainabilityCert[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Produce {
+  id                  String   @id @default(uuid())
+  vendorId            String
+  name                String
+  description         String?
+  price               Float
+  category            String
+  certificationStatus CertificationStatus @default(PENDING)
+  availableQuantity   Int      @default(0)
+
+  vendor              VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  orders              Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RentalSpace {
+  id           String   @id @default(uuid())
+  vendorId     String
+  location     String
+  size         Float    // e.g., in sq ft or sqm
+  price        Float
+  availability Boolean  @default(true)
+
+  vendor       VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  bookings     RentalBooking[]
+  plantTracks  PlantTrack[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Order {
+  id        String   @id @default(uuid())
+  userId    String
+  produceId String
+  vendorId  String   
+  // Notice we store vendorId here for easier lookup as requested by requirements "(Order: id, userId, produceId, vendorId...)"
+  status    OrderStatus @default(PENDING)
+  orderDate DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  produce   Produce  @relation(fields: [produceId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CommunityPost {
+  id          String   @id @default(uuid())
+  userId      String
+  postContent String
+  postDate    DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SustainabilityCert {
+  id                 String   @id @default(uuid())
+  vendorId           String
+  certifyingAgency   String
+  certificationDate  DateTime @default(now())
+  status             CertificationStatus @default(PENDING)
+
+  vendor             VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model RentalBooking {
+  id            String   @id @default(uuid())
+  rentalSpaceId String
+  customerId    String
+  startDate     DateTime
+  endDate       DateTime
+  status        BookingStatus @default(PENDING)
+
+  rentalSpace   RentalSpace   @relation(fields: [rentalSpaceId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model PlantTrack {
+  id                  String   @id @default(uuid())
+  customerId          String // In Prisma we can just keep ID or relate to User. Let's keep it simple.
+  vendorId            String
+  rentalSpaceId       String
+  plantName           String
+  growthStage         GrowthStage @default(SEED)
+  healthStatus        HealthStatus @default(GOOD)
+  expectedHarvestDate DateTime?
+  note                String?
+
+  rentalSpace         RentalSpace   @relation(fields: [rentalSpaceId], references: [id], onDelete: Cascade)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
