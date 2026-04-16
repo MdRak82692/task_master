@@ -19,7 +19,7 @@ export const createProduct = async (userId: string, data: any) => {
       description: data.description,
       price: data.price,
       category: data.category,
-      availableQuantity: data.availableQuantity,
+      availableQuantity: data.quantity,
       certificationStatus: profile.certificationStatus, // Inherit from vendor
     },
   });
@@ -85,11 +85,25 @@ export const updateProduct = async (userId: string, id: string, data: any) => {
   if (!product) throw new AppError(404, 'Product not found');
   if (product.vendorId !== profile?.id) throw new AppError(403, 'Not authorized to edit this product');
 
+  // availableQuantity = পুরনো quantity + নতুন quantity (যদি পাঠানো হয়)
+  const newAvailableQuantity =
+    data.quantity !== undefined
+      ? product.availableQuantity + data.quantity
+      : undefined;
+
   return await prisma.produce.update({
     where: { id },
-    data,
+    data: {
+      name: data.name,
+      description: data.description,
+      price: data.price,
+      category: data.category,
+      availableQuantity: newAvailableQuantity,
+
+    },
   });
 };
+
 
 export const deleteProduct = async (userId: string, id: string) => {
   const profile = await prisma.vendorProfile.findUnique({ where: { userId } });

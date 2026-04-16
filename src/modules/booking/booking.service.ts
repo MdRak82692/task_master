@@ -3,9 +3,8 @@ import { AppError } from '../../utils/AppError';
 
 export const createBooking = async (customerId: string, data: any) => {
   const space = await prisma.rentalSpace.findUnique({ where: { id: data.rentalSpaceId } });
-  
+
   if (!space) throw new AppError(404, 'Rental space not found');
-  if (!space.availability) throw new AppError(400, 'Space is not available');
 
   const startDate = new Date(data.startDate);
   const endDate = new Date(data.endDate);
@@ -35,7 +34,7 @@ export const createBooking = async (customerId: string, data: any) => {
 
 export const getMyBookings = async (userId: string, role: string, skip: number, limit: number) => {
   const where: any = {};
-  
+
   if (role === 'CUSTOMER') {
     where.customerId = userId;
   } else if (role === 'VENDOR') {
@@ -49,7 +48,17 @@ export const getMyBookings = async (userId: string, role: string, skip: number, 
     skip,
     take: limit,
     include: {
-      rentalSpace: { select: { location: true } }
+      rentalSpace: {
+        include: {
+          vendor: {
+            select: {
+              farmName: true,
+              user: { select: { name: true, email: true } }
+            }
+          }
+        }
+      },
+      customer: role === 'VENDOR' ? { select: { name: true, email: true } } : false
     },
     orderBy: { createdAt: 'desc' },
   });
@@ -62,7 +71,19 @@ export const getAllBookings = async (skip: number, limit: number) => {
   const bookings = await prisma.rentalBooking.findMany({
     skip,
     take: limit,
-    include: { rentalSpace: true },
+    include: {
+      customer: { select: { name: true, email: true } },
+      rentalSpace: {
+        include: {
+          vendor: {
+            select: {
+              farmName: true,
+              user: { select: { name: true, email: true } }
+            }
+          }
+        }
+      }
+    },
     orderBy: { createdAt: 'desc' },
   });
 
@@ -71,7 +92,7 @@ export const getAllBookings = async (skip: number, limit: number) => {
 };
 
 export const cancelBooking = async (userId: string, role: string, id: string) => {
-  const booking = await prisma.rentalBooking.findUnique({ 
+  const booking = await prisma.rentalBooking.findUnique({
     where: { id },
     include: { rentalSpace: true }
   });

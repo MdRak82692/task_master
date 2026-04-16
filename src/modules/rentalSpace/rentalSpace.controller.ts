@@ -18,8 +18,9 @@ export const createSpace = catchAsync(async (req: Request, res: Response) => {
 export const getSpaces = catchAsync(async (req: Request, res: Response) => {
   const { page, limit, skip } = extractPagination(req);
   const filters = {
-    location: req.query.location as string,
-    availability: req.query.availability as string,
+    location: req.query.location as string | undefined,
+    startDate: req.query.startDate as string | undefined,
+    endDate: req.query.endDate as string | undefined,
   };
 
   const { spaces, total } = await rentalSpaceService.getSpaces(filters, skip, limit);

@@ -12,20 +12,55 @@ export const createSpace = async (userId: string, data: any) => {
       location: data.location,
       size: data.size,
       price: data.price,
-      availability: data.availability ?? true,
+      description: data.description,
+      amenities: data.amenities,
     },
   });
 };
 
-export const getSpaces = async (filters: any, skip: number, limit: number) => {
+export const getSpaces = async (
+  filters: any,
+  skip: number,
+  limit: number,
+) => {
   const where: Prisma.RentalSpaceWhereInput = {};
 
   if (filters.location) {
     where.location = { contains: filters.location, mode: 'insensitive' };
   }
-  if (filters.availability !== undefined) {
-    where.availability = filters.availability === 'true';
+
+  // ── Availability filter by date-time range ──────────────────────────────
+  if (filters.startDate && filters.endDate) {
+    const requestedStart = new Date(filters.startDate);
+    const requestedEnd = new Date(filters.endDate);
+
+    if (isNaN(requestedStart.getTime()) || isNaN(requestedEnd.getTime())) {
+      throw new AppError(400, 'Invalid startDate or endDate format. Use ISO 8601 (e.g. 2026-04-20T10:00:00Z)');
+    }
+
+    if (requestedStart >= requestedEnd) {
+      throw new AppError(400, 'startDate must be before endDate');
+    }
+
+    // Find all spaces that have a conflicting booking in the requested window
+    const conflictingBookings = await prisma.rentalBooking.findMany({
+      where: {
+        status: { in: ['PENDING', 'CONFIRMED'] },
+        // Overlap condition: existing.start < requested.end AND existing.end > requested.start
+        startDate: { lt: requestedEnd },
+        endDate:   { gt: requestedStart },
+      },
+      select: { rentalSpaceId: true },
+    });
+
+    const bookedSpaceIds = [...new Set(conflictingBookings.map((b) => b.rentalSpaceId))];
+
+    // Exclude those booked spaces
+    if (bookedSpaceIds.length > 0) {
+      where.id = { notIn: bookedSpaceIds };
+    }
   }
+  // ────────────────────────────────────────────────────────────────────────
 
   const spaces = await prisma.rentalSpace.findMany({
     where,

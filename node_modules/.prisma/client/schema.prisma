@@ -68,6 +68,7 @@ model User {
   vendorProfile  VendorProfile?
   orders         Order[]
   communityPosts CommunityPost[]
+  bookings       RentalBooking[]
 }
 
 model VendorProfile {
@@ -105,12 +106,13 @@ model Produce {
 }
 
 model RentalSpace {
-  id           String  @id @default(uuid())
-  vendorId     String
-  location     String
-  size         Float // e.g., in sq ft or sqm
-  price        Float
-  availability Boolean @default(true)
+  id          String   @id @default(uuid())
+  vendorId    String
+  location    String
+  size        Float // e.g., in sq ft or sqm
+  price       Float
+  description String
+  amenities   String[]
 
   vendor      VendorProfile   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   bookings    RentalBooking[]
@@ -172,6 +174,7 @@ model RentalBooking {
   status        BookingStatus @default(PENDING)
 
   rentalSpace RentalSpace @relation(fields: [rentalSpaceId], references: [id], onDelete: Cascade)
+  customer    User        @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

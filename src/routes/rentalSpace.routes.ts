@@ -11,7 +11,8 @@ const spaceSchema = z.object({
     location: z.string().min(1, 'Location is required'),
     size: z.number().positive(),
     price: z.number().positive(),
-    availability: z.boolean().optional(),
+    description: z.string().min(1, 'Description is required'),
+    amenities: z.array(z.string()).optional(),
   }),
 });
 
