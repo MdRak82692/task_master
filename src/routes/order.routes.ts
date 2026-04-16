@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import * as orderController from './order.controller';
-import { auth } from '../../middlewares/auth';
+import * as orderController from '../modules/order/order.controller';
+import { auth } from '../middlewares/auth';
 import { z } from 'zod';
-import { validate } from '../../middlewares/validate';
+import { validate } from '../middlewares/validate';
 
 const router = Router();
 

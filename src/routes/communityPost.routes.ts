@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import * as postController from './communityPost.controller';
-import { auth } from '../../middlewares/auth';
+import * as postController from '../modules/communityPost/communityPost.controller';
+import { auth } from '../middlewares/auth';
 import { z } from 'zod';
-import { validate } from '../../middlewares/validate';
+import { validate } from '../middlewares/validate';
 
 const router = Router();
 

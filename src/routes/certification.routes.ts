@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import * as certController from './certification.controller';
-import { auth } from '../../middlewares/auth';
+import * as certController from '../modules/certification/certification.controller';
+import { auth } from '../middlewares/auth';
 import { z } from 'zod';
-import { validate } from '../../middlewares/validate';
+import { validate } from '../middlewares/validate';
 
 const router = Router();
 

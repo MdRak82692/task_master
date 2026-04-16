@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import * as spaceController from './rentalSpace.controller';
-import { auth } from '../../middlewares/auth';
+import * as spaceController from '../modules/rentalSpace/rentalSpace.controller';
+import { auth } from '../middlewares/auth';
 import { z } from 'zod';
-import { validate } from '../../middlewares/validate';
+import { validate } from '../middlewares/validate';
 
 const router = Router();
 
