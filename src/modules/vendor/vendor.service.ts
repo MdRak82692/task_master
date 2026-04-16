@@ -36,7 +36,11 @@ export const updateProfile = async (userId: string, data: any) => {
 
   return await prisma.vendorProfile.update({
     where: { userId },
-    data,
+    data: {
+      farmName: data.farmName,
+      farmLocation: data.farmLocation,
+
+    },
   });
 };
 
@@ -50,7 +54,7 @@ export const getAllVendors = async (skip: number, limit: number) => {
       },
     },
   });
-  
+
   const total = await prisma.vendorProfile.count();
   return { vendors, total };
 };

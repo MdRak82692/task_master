@@ -153,6 +153,8 @@ model SustainabilityCert {
   vendorId          String
   certifyingAgency  String
   certificationDate DateTime            @default(now())
+  certificationType String
+  description       String
   status            CertificationStatus @default(PENDING)
 
   vendor VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)

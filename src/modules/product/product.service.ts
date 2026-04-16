@@ -8,6 +8,10 @@ export const createProduct = async (userId: string, data: any) => {
     throw new AppError(404, 'Vendor profile not found');
   }
 
+  if (profile.certificationStatus !== 'APPROVED') {
+    throw new AppError(403, 'Vendor profile not approved');
+  }
+
   return await prisma.produce.create({
     data: {
       vendorId: profile.id,
@@ -54,7 +58,17 @@ export const getProducts = async (filters: any, skip: number, limit: number) => 
 export const getProductById = async (id: string) => {
   const product = await prisma.produce.findUnique({
     where: { id },
-    include: { vendor: { select: { farmName: true } } },
+    include: {
+      vendor: {
+        select: {
+          farmName: true, user: {
+            select: {
+              name: true
+            }
+          }
+        }
+      }
+    },
   });
 
   if (!product) {

@@ -10,22 +10,18 @@ const certSchema = z.object({
   body: z.object({
     certifyingAgency: z.string().min(1, 'Agency is required'),
     certificationDate: z.string().datetime(),
+    certificationType: z.string().min(1, 'Certification type is required'),
+    description: z.string().min(1, 'Description is required'),
   }),
 });
 
-/**
- * @swagger
- * /certifications/me:
- *   get:
- *     summary: Get my certifications
- *     tags: [Certifications]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: List of my certifications
- */
-router.get('/me', auth('VENDOR'), certController.getMyCerts);
+const updateCertStatusSchema = z.object({
+  body: z.object({
+    status: z.enum(['APPROVED', 'REJECTED']),
+  }),
+});
+
+
 
 /**
  * @swagger
@@ -83,7 +79,7 @@ router.get('/', auth('ADMIN'), certController.getCerts);
  *       200:
  *         description: Certification approved
  */
-router.patch('/:id/approve', auth('ADMIN'), certController.approveCert);
+router.patch('/:id', auth('ADMIN'), validate(updateCertStatusSchema), certController.updateCertStatus);
 
 /**
  * @swagger
@@ -101,6 +97,6 @@ router.patch('/:id/approve', auth('ADMIN'), certController.approveCert);
  *       200:
  *         description: Certification rejected
  */
-router.patch('/:id/reject', auth('ADMIN'), certController.rejectCert);
+
 
 export default router;

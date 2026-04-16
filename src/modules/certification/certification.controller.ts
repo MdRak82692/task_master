@@ -15,16 +15,6 @@ export const submitCert = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const getMyCerts = catchAsync(async (req: Request, res: Response) => {
-  const certs = await validationService.getMyCertifications(req.user.id);
-
-  sendResponse(res, {
-    statusCode: 200,
-    success: true,
-    message: 'Certifications retrieved successfully',
-    data: certs,
-  });
-});
 
 export const getCerts = catchAsync(async (req: Request, res: Response) => {
   const { page, limit, skip } = extractPagination(req);
@@ -44,24 +34,15 @@ export const getCerts = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const approveCert = catchAsync(async (req: Request, res: Response) => {
-  const cert = await validationService.updateCertificationStatus(req.params.id, 'APPROVED');
+export const updateCertStatus = catchAsync(async (req: Request, res: Response) => {
+  const cert = await validationService.updateCertificationStatus(req.params.id, req.body.status);
 
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: 'Certification approved',
+    message: `Certification ${req.body.status} successfully`,
     data: cert,
   });
 });
 
-export const rejectCert = catchAsync(async (req: Request, res: Response) => {
-  const cert = await validationService.updateCertificationStatus(req.params.id, 'REJECTED');
 
-  sendResponse(res, {
-    statusCode: 200,
-    success: true,
-    message: 'Certification rejected',
-    data: cert,
-  });
-});

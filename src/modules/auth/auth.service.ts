@@ -12,7 +12,7 @@ export const registerUser = async (data: any) => {
   }
 
   const hashedPassword = await bcrypt.hash(data.password, 12);
-  const userRole = data.role ? (data.role as UserRole) : UserRole.CUSTOMER;
+  const userRole = data.role || UserRole.CUSTOMER;
 
   const newUser = await prisma.user.create({
     data: {
@@ -36,12 +36,12 @@ export const registerUser = async (data: any) => {
 export const loginUser = async (data: any) => {
   const user = await prisma.user.findUnique({ where: { email: data.email } });
   if (!user || user.status !== 'ACTIVE') {
-    throw new AppError(401, 'Email does not exist');
+    throw new AppError(401, 'Email Not Exist');
   }
 
   const isMatch = await bcrypt.compare(data.password, user.password);
   if (!isMatch) {
-    throw new AppError(401, 'Invalid credentials');
+    throw new AppError(403, 'Password is Incorrect');
   }
 
   const token = jwt.sign({ id: user.id, role: user.role }, env.jwt.secret, {
