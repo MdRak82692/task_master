@@ -27,7 +27,7 @@ const router = Router();
  *                 type: string
  *               role:
  *                 type: string
- *                 enum: [CUSTOMER, VENDOR, ADMIN]
+ *                 enum: [CUSTOMER, VENDOR]
  *     responses:
  *       201:
  *         description: User created

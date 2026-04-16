@@ -1,6 +1,7 @@
 import app from './app';
 import { env } from './config/env';
 import prisma from './config/prisma';
+import { setupAdmin } from './utils/adminSetup';
 
 process.on('uncaughtException', (err: Error) => {
   console.log('UNCAUGHT EXCEPTION! Shutting down...');
@@ -12,8 +13,9 @@ let server: any;
 
 prisma
   .$connect()
-  .then(() => {
+  .then(async () => {
     console.log('DB Connection successful!');
+    await setupAdmin();
     server = app.listen(env.port, () => {
       console.log(`App running on port ${env.port}...`);
     });

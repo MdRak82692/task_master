@@ -6,7 +6,9 @@ const testCredentials = [
   { user: 'postgres', password: '', db: 'postgres' },
   { user: 'postgres', password: 'password', db: 'postgres' },
   { user: 'postgres', password: 'postgres', db: 'postgres' },
-  { user: 'user', password: 'password', db: 'farming_db' }
+  { user: 'user', password: 'password', db: 'farming_db' },
+  { user: 'user', password: '123456', db: 'farming_db' },
+  { user: 'postgres', password: '123456', db: 'postgres' }
 ];
 
 async function runTests() {

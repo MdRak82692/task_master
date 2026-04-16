@@ -36,7 +36,7 @@ export const registerUser = async (data: any) => {
 export const loginUser = async (data: any) => {
   const user = await prisma.user.findUnique({ where: { email: data.email } });
   if (!user || user.status !== 'ACTIVE') {
-    throw new AppError(401, 'Invalid credentials or inactive user');
+    throw new AppError(401, 'Email does not exist');
   }
 
   const isMatch = await bcrypt.compare(data.password, user.password);

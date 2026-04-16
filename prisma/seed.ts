@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   console.log('Seeding database...');
-  
+
   // Clear existing data
   await prisma.plantTrack.deleteMany();
   await prisma.rentalBooking.deleteMany();
@@ -17,13 +17,13 @@ async function main() {
   await prisma.vendorProfile.deleteMany();
   await prisma.user.deleteMany();
 
-  const passwordHash = await bcrypt.hash('password123', 10);
+  const passwordHash = await bcrypt.hash('123456', 10);
 
   // Create Admin
   const admin = await prisma.user.create({
     data: {
       name: 'Super Admin',
-      email: 'admin@urbanfarm.com',
+      email: 'admin@gmail.com',
       password: passwordHash,
       role: UserRole.ADMIN,
       status: UserStatus.ACTIVE,
@@ -144,7 +144,7 @@ async function main() {
   // Create some Rental Bookings & Plant Tracks
   const bookingCustomer = customers[0];
   const targetSpace = spaces[0];
-  
+
   await prisma.rentalBooking.create({
     data: {
       customerId: bookingCustomer.id,
