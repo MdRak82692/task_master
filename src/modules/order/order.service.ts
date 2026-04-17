@@ -4,7 +4,7 @@ import { OrderStatus } from '@prisma/client';
 
 export const createOrder = async (userId: string, data: any) => {
   const product = await prisma.produce.findUnique({ where: { id: data.produceId } });
-  
+
   if (!product) throw new AppError(404, 'Product not found');
   if (product.availableQuantity <= 0) throw new AppError(400, 'Product is out of stock');
 
@@ -19,7 +19,7 @@ export const createOrder = async (userId: string, data: any) => {
 
     await tx.produce.update({
       where: { id: data.produceId },
-      data: { availableQuantity: product.availableQuantity - 1 }, // simplified assuming qty=1 per order
+      data: { availableQuantity: product.availableQuantity - data.quantity },
     });
 
     return order;
@@ -28,7 +28,7 @@ export const createOrder = async (userId: string, data: any) => {
 
 export const getMyOrders = async (userId: string, role: string, skip: number, limit: number) => {
   const where: any = {};
-  
+
   if (role === 'CUSTOMER') {
     where.userId = userId;
   } else if (role === 'VENDOR') {

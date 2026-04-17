@@ -26,7 +26,7 @@ export const createTrack = async (customerId: string, data: any) => {
 
 export const getMyTracks = async (userId: string, role: string, skip: number, limit: number) => {
   const where: any = {};
-  
+
   if (role === 'CUSTOMER') {
     where.customerId = userId;
   } else if (role === 'VENDOR') {

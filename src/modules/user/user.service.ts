@@ -1,9 +1,16 @@
 import prisma from '../../config/prisma';
 import { AppError } from '../../utils/AppError';
-import { UserStatus } from '@prisma/client';
+import { UserStatus, UserRole } from '@prisma/client';
 
 export const getAllUsers = async (skip: number, limit: number) => {
+  const where = {
+    role: {
+      not: UserRole.ADMIN,
+    },
+  };
+
   const users = await prisma.user.findMany({
+    where,
     skip,
     take: limit,
     select: {
@@ -15,8 +22,8 @@ export const getAllUsers = async (skip: number, limit: number) => {
       createdAt: true,
     },
   });
-  
-  const total = await prisma.user.count();
+
+  const total = await prisma.user.count({ where });
   return { users, total };
 };
 

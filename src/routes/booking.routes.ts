@@ -87,6 +87,6 @@ router.get('/', auth('ADMIN'), bookingController.getAllBookings);
  *       200:
  *         description: Booking cancelled
  */
-router.patch('/:id/cancel', auth('CUSTOMER', 'VENDOR', 'ADMIN'), bookingController.cancelBooking);
+router.patch('/:id', auth('CUSTOMER', 'VENDOR'), bookingController.cancelBooking);
 
 export default router;

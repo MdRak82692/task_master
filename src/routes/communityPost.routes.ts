@@ -24,7 +24,7 @@ const postSchema = z.object({
  *       200:
  *         description: List of posts
  */
-router.get('/', auth('CUSTOMER', 'VENDOR', 'ADMIN'), postController.getPosts);
+router.get('/', postController.getPosts);
 
 /**
  * @swagger
